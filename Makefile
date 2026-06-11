@@ -3,7 +3,11 @@
 BINARY_NAME=vision-agent
 MODEL=llava
 
-.PHONY: all setup build run check clean pull-models
+# Keep Go dependencies localized to the project folder
+export GOPATH := $(PWD)/.go
+export PATH := $(GOPATH)/bin:$(PATH)
+
+.PHONY: all setup build run check clean pull-models purge
 
 all: build
 
@@ -26,7 +30,7 @@ build:
 	mkdir -p bin
 	go build -o bin/$(BINARY_NAME) ./cmd/vision-agent
 
-run: build
+run: setup build
 	./bin/$(BINARY_NAME)
 
 check:
@@ -38,4 +42,22 @@ check:
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf bin/
-	go clean
+	go clean || true
+
+purge: clean
+	@echo "Removing downloaded Ollama models..."
+	-ollama rm $(MODEL)
+	-ollama rm llama3.2-vision
+	@echo "Stopping and uninstalling Ollama..."
+	-sudo systemctl stop ollama
+	-sudo systemctl disable ollama
+	-sudo rm -rf /usr/local/bin/ollama /usr/local/lib/ollama /etc/systemd/system/ollama.service
+	-sudo rm -rf /usr/share/ollama
+	-sudo userdel ollama
+	-sudo groupdel ollama
+	@echo "Removing localized Go dependencies..."
+	rm -rf .go/
+	@echo "Removing system dependencies (golang, libopencv-dev, pkg-config)..."
+	sudo apt-get remove --purge -y golang libopencv-dev pkg-config
+	sudo apt-get autoremove -y
+	@echo "Project and environment fully purged."

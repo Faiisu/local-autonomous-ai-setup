@@ -48,6 +48,7 @@ VIDEO_DEVICE="rtsp://your-camera-stream" make run
 
 - `make setup` - Install system dependencies (OpenCV) and pull AI models.
 - `make build` - Compile the Go binary into the `bin/` folder.
-- `make run`   - Build and execute the vision pipeline immediately.
+- `make run`   - Automatically install all dependencies (if missing), build, and execute the vision pipeline immediately. Go dependencies are localized in `.go/`.
 - `make check` - Verify camera hardware and Ollama service status.
-- `make clean` - Clean build artifacts and clear temporary memory.
+- `make clean` - Clean build artifacts.
+- `make purge` - **Free up storage space** by completely uninstalling Ollama, removing downloaded AI models, deleting localized Go modules (`.go/`), and removing installed system dependencies (`golang`, `libopencv-dev`).
