@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Lab - Dual Panel Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+            --advantech-blue: #004280;
+            --advantech-orange: #F39800;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px;
+        }
+        header {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            text-align: center;
+        }
+        h1 { color: var(--advantech-blue); font-weight: 800; }
+        .summary { color: #666; max-width: 800px; margin: 20px auto; line-height: 1.6; }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .variant-section {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border-top: 6px solid var(--advantech-blue);
+        }
+
+        .variant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+        }
+
+        .variant-tag {
+            background: var(--advantech-orange);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .variant-preview {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            min-height: 400px;
+            position: relative;
+            background: #eee;
+        }
+
+        /* Mock UI Elements */
+        .mock-nav { background: var(--advantech-blue); height: 40px; }
+        .mock-feed { background: #000; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; }
+        .mock-obs { background: #fff; padding: 20px; border: 1px solid #ddd; }
+        .mock-btn { background: var(--advantech-orange); color: white; border: none; padding: 8px 16px; border-radius: 4px; }
+        
+        /* Variant A: Side-by-Side */
+        .a-container { display: flex; height: 400px; }
+        .a-left { flex: 1.5; border-right: 2px solid #ddd; }
+        .a-right { flex: 1; overflow-y: auto; background: #fff; }
+
+        /* Variant B: Picture-in-Picture */
+        .b-container { position: relative; height: 400px; background: #000; }
+        .b-obs { 
+            position: absolute; bottom: 20px; right: 20px; 
+            width: 250px; height: 180px; 
+            background: #fff; border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid var(--advantech-blue);
+            z-index: 10;
+        }
+
+        /* Variant C: Overlay Side-panel */
+        .c-container { position: relative; height: 400px; display: flex; }
+        .c-main { flex: 1; background: #000; }
+        .c-side { 
+            width: 300px; background: #fff; 
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .c-toggle { position: absolute; left: -40px; top: 20px; width: 40px; height: 40px; background: var(--advantech-blue); color: white; display: flex; align-items: center; justify-content: center; border-radius: 4px 0 0 4px; cursor: pointer; }
+
+        /* Variant D: Floating Hub */
+        .d-container { display: flex; flex-direction: column; height: 400px; position: relative; }
+        .d-feed { flex: 1; background: #000; }
+        .d-float { 
+            position: absolute; top: 20px; left: 20px; 
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
+            padding: 15px; border-radius: 12px; border: 1px solid #fff;
+            width: 200px;
+        }
+
+        /* Variant E: Dashboard Grid */
+        .e-container { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: auto 1fr; height: 400px; gap: 10px; padding: 10px; background: #f0f0f0; }
+        .e-header { grid-column: span 2; background: #fff; padding: 10px; border-radius: 8px; }
+        .e-feed { background: #000; border-radius: 8px; }
+        .e-obs { background: #fff; border-radius: 8px; border: 1px solid #ddd; }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Design Lab: Dual-Panel Redesign</h1>
+        <p class="summary">
+            Exploration of real-time vs. observation panel arrangements following Advantech corporate identity. 
+            <strong>Goal:</strong> Seamless transition between live monitoring and AI-driven analysis.
+        </p>
+    </header>
+
+    <main class="lab-grid">
+        <!-- Variant A -->
+        <section class="variant-section" data-variant="A">
+            <div class="variant-header">
+                <h3>Variant A: Classic Workspace</h3>
+                <span class="variant-tag">Standard Split</span>
+            </div>
+            <p>Reliable side-by-side layout. Professional and clear hierarchy. Best for desktop monitoring.</p>
+            <div class="variant-preview">
+                <div class="a-container">
+                    <div class="a-left"><div class="mock-feed">Live Feed (Streaming)</div></div>
+                    <div class="a-right">
+                        <div class="mock-obs">
+                            <h4>Observation Result</h4>
+                            <p>Analysis details appear here...</p>
+                            <button class="mock-btn">Capture Frame</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Variant B -->
+        <section class="variant-section" data-variant="B">
+            <div class="variant-header">
+                <h3>Variant B: Immersive Monitor</h3>
+                <span class="variant-tag">Picture-in-Picture</span>
+            </div>
+            <p>Maximizes the live feed area. Observation results appear in a floating 'picture' that can be pinned or dismissed.</p>
+            <div class="variant-preview">
+                <div class="b-container">
+                    <div class="mock-feed">Live Feed (Full-Screen)</div>
+                    <div class="b-obs">
+                        <div style="padding:10px; font-size: 0.8rem;">
+                            <strong>Latest Observation</strong>
+                            <div style="height:60px; background:#eee; margin:5px 0;"></div>
+                            <p style="margin:0;">Analysis text...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Variant C -->
+        <section class="variant-section" data-variant="C">
+            <div class="variant-header">
+                <h3>Variant C: Sliding Utility</h3>
+                <span class="variant-tag">Side-Drawer</span>
+            </div>
+            <p>Focus on the camera. Observation panel slides in from the right when needed, keeping the UI clean.</p>
+            <div class="variant-preview">
+                <div class="c-container">
+                    <div class="c-main"><div class="mock-feed">Live Feed</div></div>
+                    <div class="c-side">
+                        <div class="c-toggle">☰</div>
+                        <div class="mock-obs">
+                            <h4>Observations</h4>
+                            <p>History and details...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Variant D -->
+        <section class="variant-section" data-variant="D">
+            <div class="variant-header">
+                <h3>Variant D: Control Hub</h3>
+                <span class="variant-tag">Floating HUD</span>
+            </div>
+            <p>Transparent overlay controls for a modern "High-Tech" feel. Best for touch-screens or field devices.</p>
+            <div class="variant-preview">
+                <div class="d-container">
+                    <div class="d-feed"><div class="mock-feed">Live Feed</div></div>
+                    <div class="d-float">
+                        <strong>Controls</strong>
+                        <button class="mock-btn" style="width:100%; margin-top:10px;">👁️ Analyze</button>
+                        <hr>
+                        <div style="font-size:0.8rem;">Observation: None</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Variant E -->
+        <section class="variant-section" data-variant="E">
+            <div class="variant-header">
+                <h3>Variant E: Data Dashboard</h3>
+                <span class="variant-tag">Modular Grid</span>
+            </div>
+            <p>Information-rich view. Separates header, video, and insights into distinct cards. Very scalable.</p>
+            <div class="variant-preview">
+                <div class="e-container">
+                    <div class="e-header">Device: Camera_01 | Status: Online</div>
+                    <div class="e-feed"><div class="mock-feed">Live Feed</div></div>
+                    <div class="e-obs"><div class="mock-obs">Analysis Output</div></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="feedback-root"></div>
+    <script src="/FeedbackOverlay.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "scope": "page",
+  "isRedesign": true,
+  "targetPath": "web/index.html",
+  "targetName": "DualPanelVisionDashboard",
+  "painPoints": ["Visual Congestion"],
+  "inspiration": {
+    "visual": ["Advantech Corporate"],
+    "functional": ["Picture-in-Picture", "Side-panel toggle"]
+  },
+  "brand": {
+    "adjectives": ["consumer friendly", "corporate", "professional"],
+    "density": "comfortable",
+    "darkMode": false
+  },
+  "persona": {
+    "primary": "End consumer",
+    "context": "desktop-first",
+    "keyTasks": ["Live monitoring", "Manual observation trigger", "Toggle controls"]
+  },
+  "constraints": {
+    "mustKeep": ["Advantech Palette", "Mobile Responsive"],
+    "technical": ["Vanilla HTML/CSS/JS"]
+  },
+  "framework": "vanilla",
+  "packageManager": "none",
+  "stylingSystem": "css"
+}

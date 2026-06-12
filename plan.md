@@ -72,6 +72,15 @@ Phase 5: Production Readiness & Optimization
       - Fine-tune hardware acceleration settings (GPU/iGPU utilization).
       - Log Latency metrics (Capture time vs. Inference time).
 
+Phase 6: Web UI Integration
+
+  - Goal: Provide a remote dashboard for real-time monitoring.
+  - Key Tasks:
+      - Implement a Go-based web server with WebSocket support.
+      - Stream terminal logs to the browser in real-time.
+      - Display the latest captured image and AI-generated description.
+      - Success Metric: Accessing http://localhost:8080 shows logs and vision data.
+
 3. Project Management (Makefile Interface)
 
 The project must be managed entirely through a Makefile located in the root

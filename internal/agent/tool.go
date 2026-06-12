@@ -18,17 +18,18 @@ func NewVisionTool(p *capture.Pipeline, c *ollama.Client) *VisionTool {
 	}
 }
 
-func (t *VisionTool) AnalyzeCameraFrame(prompt string) (string, error) {
+func (t *VisionTool) AnalyzeCameraFrame(prompt string) (string, string, error) {
 	frame := t.pipeline.GetLastFrame()
 	if frame == "" {
-		return "", fmt.Errorf("no camera frame available yet")
+		return "", "", fmt.Errorf("no camera frame available yet")
 	}
 
 	if prompt == "" {
 		prompt = "Describe what you see in this image briefly and concisely."
 	}
 
-	return t.ollama.GenerateObservation(prompt, frame)
+	obs, err := t.ollama.GenerateObservation(prompt, frame)
+	return obs, frame, err
 }
 
 // ToolSchema returns the JSON schema for this tool to be used by an orchestrator
