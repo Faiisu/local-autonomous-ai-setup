@@ -1,6 +1,6 @@
 # Project: Local Vision LLM & Image Capture Pipeline
 
-BINARY_NAME=vision-agent
+BINARY_NAME=openclaw
 MODEL=llava:13b
 
 # Keep Go dependencies localized to the project folder
@@ -35,7 +35,7 @@ pull-models:
 build:
 	@echo "Building Go binary..."
 	mkdir -p bin
-	go build -o bin/$(BINARY_NAME) ./cmd/vision-agent
+	go build -o bin/$(BINARY_NAME) ./cmd/openclaw
 
 run: build
 	@echo "Running normally..."

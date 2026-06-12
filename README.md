@@ -39,10 +39,10 @@ VIDEO_DEVICE="rtsp://your-camera-stream" make run
 
 ## Project Structure
 
-- `cmd/vision-agent/main.go`: Application entrypoint.
+- `cmd/openclaw/main.go`: Application entrypoint.
 - `internal/capture/pipeline.go`: Video capture loop using `gocv`.
 - `internal/ollama/client.go`: HTTP client for interacting with the Ollama API.
-- `internal/agent/tool.go`: Orchestration integration defining the `VisionTool` schema.
+- `internal/agent/tool.go`: Orchestration integration defining the `OpenClawTool` schema.
 
 ## Available Makefile Commands
 

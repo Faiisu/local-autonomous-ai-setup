@@ -2,23 +2,23 @@ package agent
 
 import (
 	"fmt"
-	"vision-detect/internal/capture"
-	"vision-detect/internal/ollama"
+	"openclaw/internal/capture"
+	"openclaw/internal/ollama"
 )
 
-type VisionTool struct {
+type OpenClawTool struct {
 	pipeline *capture.Pipeline
 	ollama   *ollama.Client
 }
 
-func NewVisionTool(p *capture.Pipeline, c *ollama.Client) *VisionTool {
-	return &VisionTool{
+func NewOpenClawTool(p *capture.Pipeline, c *ollama.Client) *OpenClawTool {
+	return &OpenClawTool{
 		pipeline: p,
 		ollama:   c,
 	}
 }
 
-func (t *VisionTool) AnalyzeCameraFrame(prompt string) (string, string, error) {
+func (t *OpenClawTool) AnalyzeCameraFrame(prompt string) (string, string, error) {
 	frame := t.pipeline.GetLastFrame()
 	if frame == "" {
 		return "", "", fmt.Errorf("no camera frame available yet")
@@ -33,10 +33,10 @@ func (t *VisionTool) AnalyzeCameraFrame(prompt string) (string, string, error) {
 }
 
 // ToolSchema returns the JSON schema for this tool to be used by an orchestrator
-func (t *VisionTool) ToolSchema() string {
+func (t *OpenClawTool) ToolSchema() string {
 	return `{
-		"name": "analyze_camera_frame",
-		"description": "Captures the current frame from the local camera and analyzes it using a vision LLM.",
+		"name": "openclaw_analyze",
+		"description": "Captures the current frame from the local camera and analyzes it using OpenClaw vision intelligence.",
 		"parameters": {
 			"type": "object",
 			"properties": {

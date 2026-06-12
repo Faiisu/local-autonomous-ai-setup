@@ -18,7 +18,7 @@ graph TD
         PIPELINE[Capture Pipeline]:::backend
         BUFFER[(Latest Frame Buffer)]:::backend
         API[Web Server API]:::backend
-        TOOL[Vision Agent Tool]:::backend
+        TOOL[OpenClaw Tool]:::backend
         
         CAM -- "Continuous Read" --> PIPELINE
         PIPELINE -- "Update (5 FPS)" --> BUFFER

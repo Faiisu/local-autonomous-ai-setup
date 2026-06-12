@@ -1,7 +1,5 @@
-module vision-detect
+module openclaw
 
 go 1.25.0
 
 require gocv.io/x/gocv v0.35.0
-
-require github.com/gorilla/websocket v1.5.3
