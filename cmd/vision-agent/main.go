@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -15,15 +16,23 @@ func main() {
 	// Configuration
 	device := os.Getenv("VIDEO_DEVICE")
 	if device == "" {
-		device = "dummy" // Fallback to dummy mode for development
+		// Auto-detect first video device, otherwise fallback to dummy
+		if _, err := os.Stat("/dev/video0"); err == nil {
+			device = "/dev/video0"
+		} else {
+			device = "dummy"
+		}
 	}
 	width := 640
 	height := 480
 	captureInterval := 5 * time.Second
 	ollamaURL := "http://localhost:11434"
-	modelName := "llava"
+	modelName := os.Getenv("MODEL_NAME")
+	if modelName == "" {
+		modelName = "llava:13b"
+	}
 
-	log.Println("Initializing Vision Agent Pipeline...")
+	log.Printf("Initializing Vision Agent Pipeline with model: %s...", modelName)
 
 	// 1. Setup Capture Pipeline
 	pipeline := capture.NewPipeline(device, width, height, captureInterval)
@@ -54,6 +63,9 @@ func main() {
 
 			latency := time.Since(start)
 			log.Printf("Observation [%v]: %s", latency, obs)
+
+			// Update HUD
+			pipeline.SetOverlayText(fmt.Sprintf("[%v] %s", latency.Truncate(time.Millisecond), obs))
 		}
 	}()
 

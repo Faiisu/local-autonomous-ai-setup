@@ -4,8 +4,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+	"image/color"
 	"log"
+	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,10 +21,11 @@ type Pipeline struct {
 	Height   int
 	Interval time.Duration
 
-	mu         sync.Mutex
-	lastFrame  string
-	isRunning  bool
-	stopSignal chan struct{}
+	mu          sync.Mutex
+	lastFrame   string
+	overlayText string
+	isRunning   bool
+	stopSignal  chan struct{}
 }
 
 func NewPipeline(device string, width, height int, interval time.Duration) *Pipeline {
@@ -32,6 +36,12 @@ func NewPipeline(device string, width, height int, interval time.Duration) *Pipe
 		Interval:   interval,
 		stopSignal: make(chan struct{}),
 	}
+}
+
+func (p *Pipeline) SetOverlayText(text string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.overlayText = text
 }
 
 func (p *Pipeline) Start() error {
@@ -89,22 +99,28 @@ func (p *Pipeline) captureLoop(webcam *gocv.VideoCapture, dev interface{}) {
 	resized := gocv.NewMat()
 	defer resized.Close()
 
-	ticker := time.NewTicker(p.Interval)
-	defer ticker.Stop()
+	// Check if we have a display environment
+	hasDisplay := os.Getenv("DISPLAY") != "" || os.Getenv("WAYLAND_DISPLAY") != ""
+	var window *gocv.Window
+	if hasDisplay {
+		window = gocv.NewWindow("Vision Agent - Live Feed")
+		defer window.Close()
+		log.Printf("Starting live capture and visualization on device %v", dev)
+	} else {
+		log.Printf("No display detected. Starting live capture in HEADLESS mode on device %v", dev)
+	}
 
-	log.Printf("Starting capture loop on device %v every %v", dev, p.Interval)
+	lastEncodeTime := time.Time{} // Force immediate first encode
 
 	for {
 		select {
 		case <-p.stopSignal:
 			log.Println("Capture loop stopping...")
 			return
-		case <-ticker.C:
+		default:
 			if ok := webcam.Read(&img); !ok || img.Empty() {
 				log.Printf("Device %v: failed to read frame, attempting to reconnect...", dev)
 				webcam.Close()
-
-				// Reconnect logic
 				var err error
 				webcam, err = gocv.OpenVideoCapture(dev)
 				if err != nil {
@@ -114,23 +130,73 @@ func (p *Pipeline) captureLoop(webcam *gocv.VideoCapture, dev interface{}) {
 				continue
 			}
 
-			// Preprocessing: Resize
-			gocv.Resize(img, &resized, image.Point{X: p.Width, Y: p.Height}, 0, 0, gocv.InterpolationLinear)
-
-			// Compress to JPEG
-			buf, err := gocv.IMEncode(".jpg", resized)
-			if err != nil {
-				log.Printf("Failed to encode frame: %v", err)
-				continue
+			// 1. Throttled Base64 Encoding for LLM
+			if time.Since(lastEncodeTime) >= p.Interval {
+				gocv.Resize(img, &resized, image.Point{X: p.Width, Y: p.Height}, 0, 0, gocv.InterpolationLinear)
+				buf, err := gocv.IMEncode(".jpg", resized)
+				if err == nil {
+					encoded := base64.StdEncoding.EncodeToString(buf.GetBytes())
+					buf.Close()
+					p.mu.Lock()
+					p.lastFrame = encoded
+					p.mu.Unlock()
+					lastEncodeTime = time.Now()
+				}
 			}
 
-			// Convert to Base64
-			encoded := base64.StdEncoding.EncodeToString(buf.GetBytes())
-			buf.Close()
+			// 2. Draw HUD and Show (only if display is available)
+			if hasDisplay && window != nil {
+				p.mu.Lock()
+				overlay := p.overlayText
+				p.mu.Unlock()
 
-			p.mu.Lock()
-			p.lastFrame = encoded
-			p.mu.Unlock()
+				if overlay != "" {
+					p.drawHUD(&img, overlay)
+				}
+
+				window.IMShow(img)
+				if window.WaitKey(1) == 27 { // ESC to exit
+					p.Stop()
+					return
+				}
+			} else {
+				// In headless mode, we don't want to peg the CPU at 100% reading frames
+				// so we add a tiny sleep to mimic a framerate.
+				time.Sleep(30 * time.Millisecond)
+			}
 		}
 	}
+}
+
+func (p *Pipeline) drawHUD(img *gocv.Mat, text string) {
+	// Background semi-transparent rectangle for readability
+	gocv.Rectangle(img, image.Rect(0, 0, img.Cols(), 80), color.RGBA{0, 0, 0, 150}, -1)
+
+	// Draw lines of text
+	lines := p.wrapText(text, 50) // Approx 50 chars per line
+	for i, line := range lines {
+		if i > 2 {
+			break // Show only first 3 lines on HUD
+		}
+		gocv.PutText(img, line, image.Pt(10, 25+(i*20)), gocv.FontHersheySimplex, 0.6, color.RGBA{0, 255, 0, 0}, 2)
+	}
+}
+
+func (p *Pipeline) wrapText(text string, width int) []string {
+	words := strings.Fields(text)
+	if len(words) == 0 {
+		return nil
+	}
+	lines := []string{}
+	currentLine := words[0]
+	for _, word := range words[1:] {
+		if len(currentLine)+len(word)+1 <= width {
+			currentLine += " " + word
+		} else {
+			lines = append(lines, currentLine)
+			currentLine = word
+		}
+	}
+	lines = append(lines, currentLine)
+	return lines
 }
